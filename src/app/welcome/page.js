@@ -1,18 +1,24 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
 
 export const dynamic = "force-dynamic";
 
 export default function WelcomePage() {
-  const supabase = useMemo(() => createClient(), []);
+  const [supabase, setSupabase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSupabase(createClient());
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
     let isMounted = true;
 
     const loadSession = async () => {
@@ -59,6 +65,7 @@ export default function WelcomePage() {
   }, [supabase]);
 
   const handleLogout = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
     window.location.href = "/login";
   };

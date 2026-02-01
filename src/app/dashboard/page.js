@@ -1,12 +1,12 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
 
 export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
-  const supabase = useMemo(() => createClient(), []);
+  const [supabase, setSupabase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -22,6 +22,12 @@ export default function DashboardPage() {
   const pageSize = 10;
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSupabase(createClient());
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
     let isMounted = true;
 
     const loadSession = async () => {
@@ -67,6 +73,7 @@ export default function DashboardPage() {
   }, [supabase]);
 
   const loadUsers = async () => {
+    if (!supabase) return;
     setUsersLoading(true);
     const { data: usersData, error: usersError } = await supabase
       .from("profiles")
@@ -91,6 +98,7 @@ export default function DashboardPage() {
   };
 
   const toggleUserFlag = async (userId, field, nextValue, label) => {
+    if (!supabase) return;
     setUsersBusyId(userId);
     const { error } = await supabase
       .from("profiles")
@@ -109,6 +117,7 @@ export default function DashboardPage() {
   };
 
   const handleLogout = async () => {
+    if (!supabase) return;
     await supabase.auth.signOut();
     window.location.href = "/login";
   };

@@ -1,14 +1,20 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
-  const supabase = useMemo(() => createClient(), []);
+  const [supabase, setSupabase] = useState(null);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    setSupabase(createClient());
+  }, []);
+
+  useEffect(() => {
+    if (!supabase) return;
     let isMounted = true;
 
     supabase.auth.getSession().then(({ data, error }) => {
@@ -28,6 +34,7 @@ export default function LoginPage() {
   }, [supabase]);
 
   const handleGoogleLogin = async () => {
+    if (!supabase) return;
     setLoading(true);
     setStatus("");
 
