@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
 
+export const dynamic = "force-dynamic";
+
 export default function WelcomePage() {
   const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(true);
