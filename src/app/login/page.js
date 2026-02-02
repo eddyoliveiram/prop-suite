@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [supabase, setSupabase] = useState(null);
@@ -52,23 +60,25 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="app-shell">
-      <section className="card">
-        <p className="eyebrow">PropSuite</p>
-        <h1 className="title">Entre para gerenciar suas contas</h1>
-        <p className="subtitle">
-          Acesse com Google para acompanhar suas mesas proprietarias em um
-          painel simples e rapido.
-        </p>
-        <div className="actions">
-          <button className="button" onClick={handleGoogleLogin} disabled={loading}>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-background via-background/95 to-muted/40 px-6 py-10">
+      <div className="pointer-events-none absolute -top-32 right-[-10%] h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-20%] left-[-10%] h-80 w-80 rounded-full bg-emerald-300/20 blur-3xl" />
+      <Card className="relative w-full max-w-xl border-muted/60 bg-background/90 shadow-xl">
+        <CardHeader className="space-y-4 pb-4 text-center">
+          <div className="flex justify-center">
+            <span className="text-5xl text-foreground [font-family:var(--font-story-script)]">
+              PropSuite
+            </span>
+          </div>
+          <CardTitle className="text-2xl">Entre para continuar</CardTitle>
+          <CardDescription>
+            Use sua conta Google para acessar a ferramenta.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button className="h-12 w-full gap-2 text-base" onClick={handleGoogleLogin} disabled={loading}>
             {!loading && (
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                width="20"
-                height="20"
-              >
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
                 <path
                   fill="#4285F4"
                   d="M23.49 12.27c0-.82-.07-1.42-.22-2.05H12.24v3.75h6.45c-.13 1-.83 2.51-2.38 3.52l-.02.12 3.49 2.7.24.02c2.2-2.03 3.47-5.02 3.47-8.06z"
@@ -88,13 +98,10 @@ export default function LoginPage() {
               </svg>
             )}
             {loading ? "Abrindo o Google..." : "Entrar com Google"}
-          </button>
-        </div>
-        {status ? <p className="status">{status}</p> : null}
-        <p className="note">
-          Depois do login voce sera direcionado para a tela de boas-vindas.
-        </p>
-      </section>
+          </Button>
+          {status ? <p className="text-sm text-destructive">{status}</p> : null}
+        </CardContent>
+      </Card>
     </main>
   );
 }

@@ -2,6 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabaseClient";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -72,27 +82,30 @@ export default function WelcomePage() {
 
   if (loading) {
     return (
-      <main className="app-shell">
-        <section className="card">
-          <p className="loading">Carregando sua sessao...</p>
-        </section>
+      <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
+        <Card className="w-full max-w-md">
+          <CardContent className="py-8 text-center text-sm text-muted-foreground">
+            Carregando...
+          </CardContent>
+        </Card>
       </main>
     );
   }
 
   if (!user) {
     return (
-      <main className="app-shell">
-        <section className="card">
-          <p className="eyebrow">PropSuite</p>
-          <h1 className="title">Voce ainda nao entrou</h1>
-          <p className="subtitle">Faca login para acessar seu painel.</p>
-          <div className="actions">
-            <a className="button" href="/login">
+      <main className="flex min-h-screen items-center justify-center bg-muted/30 p-6">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Voce ainda nao entrou</CardTitle>
+            <CardDescription>Faca login para acessar seu painel.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button className="w-full" onClick={() => (window.location.href = "/login")}>
               Ir para login
-            </a>
-          </div>
-        </section>
+            </Button>
+          </CardContent>
+        </Card>
       </main>
     );
   }
@@ -106,40 +119,78 @@ export default function WelcomePage() {
     "https://www.gravatar.com/avatar/?d=mp";
 
   return (
-    <main className="app-shell">
-      <section className="card">
-        <p className="eyebrow">PropSuite</p>
-        <div className="alert">
-          <div className="alert-title">
-            <span className="alert-icon" aria-hidden="true">!</span>
-            <span>Acesso pendente</span>
-          </div>
-          <p className="alert-text">
+    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-background via-background/95 to-muted/40 px-6 py-10">
+      <Card className="w-full max-w-4xl border-muted/60 bg-background/90 shadow-xl">
+        <CardHeader className="space-y-4 pb-2 text-center items-center">
+          <Badge className="bg-amber-100 text-amber-900 hover:bg-amber-100">
+            Acesso pendente
+          </Badge>
+          <CardTitle className="text-2xl">Conta aguardando liberação</CardTitle>
+          <CardDescription className="text-base text-center">
             Sua conta ainda não foi liberada.
-            <br />
-            Para concluir a ativação, realize o pagamento, informe seu e-mail
-            do Gmail cadastrado e envie o comprovante ao administrador.
-          </p>
-        </div>
-        <div className="user-pill">
-          <img
-            className="avatar"
-            src={avatarUrl}
-            alt="Foto do usuario"
-            referrerPolicy="no-referrer"
-          />
-          <div className="user-meta">
-            <strong>{displayName}</strong>
-            <span>{user.email}</span>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-6 md:grid-cols-[1.2fr_0.8fr] md:items-start">
+          <div className="space-y-4 rounded-2xl border bg-muted/30 p-5 text-left text-sm text-muted-foreground md:text-base">
+            <p className="text-foreground/90">
+              Para concluir a ativação, siga os passos abaixo:
+            </p>
+            <ol className="space-y-2">
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600/15 text-xs font-semibold text-emerald-700">
+                  1
+                </span>
+                <span>Realize o pagamento conforme as instruções recebidas.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600/15 text-xs font-semibold text-emerald-700">
+                  2
+                </span>
+                <span>Informe o e-mail do Gmail cadastrado na plataforma.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600/15 text-xs font-semibold text-emerald-700">
+                  3
+                </span>
+                <span>Envie o comprovante de pagamento ao administrador.</span>
+              </li>
+              <li className="flex gap-3">
+                <span className="mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600/15 text-xs font-semibold text-emerald-700">
+                  4
+                </span>
+                <span>Após a confirmação, atualize a página para acessar sua conta.</span>
+              </li>
+            </ol>
+            <p>Se tiver qualquer dúvida, entre em contato com o suporte.</p>
           </div>
-        </div>
-        {message ? <p className="status">{message}</p> : null}
-        <div className="actions">
-          <button className="button secondary" onClick={handleLogout}>
-            Sair
-          </button>
-        </div>
-      </section>
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border bg-muted/20 p-5 text-center">
+              <Avatar className="h-14 w-14">
+                <AvatarImage src={avatarUrl} alt="Foto do usuario" />
+                <AvatarFallback>{displayName.slice(0, 2)}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-semibold">{displayName}</p>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
+              </div>
+            </div>
+            {message ? (
+              <p className="text-sm text-destructive text-center">{message}</p>
+            ) : null}
+            <div className="flex flex-col gap-2">
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700"
+                onClick={() => window.location.reload()}
+              >
+                Atualizar página
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                Sair
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
