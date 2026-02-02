@@ -96,6 +96,26 @@ export default function DashboardPage() {
     if (!supabase) return;
     let isMounted = true;
 
+    const ensureProfile = async (currentUser) => {
+      if (!currentUser) return { data: null, error: null };
+      const metadata = currentUser.user_metadata || {};
+      const payload = {
+        id: currentUser.id,
+        email: currentUser.email || null,
+        full_name: metadata.full_name || metadata.name || null,
+        avatar_url: metadata.avatar_url || metadata.picture || null,
+      };
+      const { error } = await supabase
+        .from("profiles")
+        .upsert(payload, { onConflict: "id" });
+      if (error) return { data: null, error };
+      return supabase
+        .from("profiles")
+        .select("full_name, avatar_url, is_admin, is_approved, email")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+    };
+
     const loadSession = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (!isMounted) return;
@@ -110,11 +130,16 @@ export default function DashboardPage() {
         window.location.href = "/login";
         return;
       }
-      const { data: profileData, error: profileError } = await supabase
+      let { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("full_name, avatar_url, is_admin, is_approved, email")
         .eq("id", currentUser.id)
-        .single();
+        .maybeSingle();
+      if (profileError || !profileData) {
+        const ensured = await ensureProfile(currentUser);
+        profileData = ensured?.data || null;
+        profileError = ensured?.error || null;
+      }
       if (profileError) {
         setMessage("Nao foi possivel carregar seu perfil.");
         setLoading(false);
@@ -229,7 +254,7 @@ export default function DashboardPage() {
     setUsersBusyId(userId);
     const { error } = await supabase
       .from("profiles")
-      .update({ [field]: nextValue, updated_at: new Date().toISOString() })
+      .update({ [field]: nextValue })
       .eq("id", userId);
     if (error) {
       setMessage("Nao foi possivel atualizar o usuario.");

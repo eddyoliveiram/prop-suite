@@ -29,3 +29,38 @@ on public.accounts for update
 using (auth.uid() = user_id);
 
 -- No trades table (checklist is visual only)
+
+-- Profiles policies (admin visibility)
+alter table if exists public.profiles enable row level security;
+
+create policy if not exists "Profiles are viewable by owner"
+on public.profiles for select
+using (auth.uid() = id);
+
+create policy if not exists "Profiles are updatable by owner"
+on public.profiles for update
+using (auth.uid() = id);
+
+create policy if not exists "Admins can view all profiles"
+on public.profiles for select
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.is_admin
+  )
+);
+
+create policy if not exists "Admins can update profiles"
+on public.profiles for update
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.is_admin
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.is_admin
+  )
+);
