@@ -182,10 +182,10 @@ export default function WelcomePage() {
                 className="bg-emerald-600 hover:bg-emerald-700"
                 onClick={() => window.location.reload()}
               >
-                Atualizar página
+                🔄 Atualizar página
               </Button>
               <Button variant="outline" onClick={handleLogout}>
-                Sair
+                ⏻ Sair
               </Button>
             </div>
           </div>

@@ -70,7 +70,6 @@ export default function LoginPage() {
               PropSuite
             </span>
           </div>
-          <CardTitle className="text-2xl">Entre para continuar</CardTitle>
           <CardDescription>
             Use sua conta Google para acessar a ferramenta.
           </CardDescription>
@@ -97,7 +96,7 @@ export default function LoginPage() {
                 />
               </svg>
             )}
-            {loading ? "Abrindo o Google..." : "Entrar com Google"}
+            {loading ? "Abrindo o Google..." : "🔐 Entrar com Google"}
           </Button>
           {status ? <p className="text-sm text-destructive">{status}</p> : null}
         </CardContent>

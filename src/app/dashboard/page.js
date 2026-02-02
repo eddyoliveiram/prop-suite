@@ -65,6 +65,8 @@ export default function DashboardPage() {
   const [advanceTarget, setAdvanceTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mesaFilter, setMesaFilter] = useState("all");
+  const [idFilter, setIdFilter] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -183,7 +185,7 @@ export default function DashboardPage() {
       1: [{ amount: 1400, profit: 300 }],
       2: [{ amount: 1700, profit: 300 }],
       3: [{ amount: 2000, profit: 300 }],
-      4: [{ amount: 2000, profit: 300 }],
+      4: [{ amount: 2300, profit: 300 }],
       5: [{ amount: 2600, profit: 300 }],
     },
   };
@@ -298,7 +300,7 @@ export default function DashboardPage() {
     if (stage === "post_withdraw" && day < 5)
       return { nextDay: day + 1, nextStage: "post_withdraw" };
     if (stage === "post_withdraw" && day === 5)
-      return { nextDay: 5, nextStage: "completed" };
+      return { nextDay: 1, nextStage: "awaiting_payment" };
     return null;
   };
 
@@ -381,6 +383,18 @@ export default function DashboardPage() {
   const startIndex = (safePage - 1) * pageSize;
   const pagedUsers = filteredUsers.slice(startIndex, startIndex + pageSize);
 
+  const filteredAccounts = accounts.filter((account) => {
+    const byMesa = mesaFilter === "all" || account.mesa === mesaFilter;
+    const byId =
+      !idFilter.trim() ||
+      account.login.toLowerCase().includes(idFilter.trim().toLowerCase());
+    return byMesa && byId;
+  });
+
+  const mesasDisponiveis = Array.from(
+    new Set(accounts.map((account) => account.mesa))
+  );
+
   return (
     <main className="min-h-screen bg-muted/30">
       <div className="relative min-h-screen w-full p-6">
@@ -444,7 +458,7 @@ export default function DashboardPage() {
               className="w-full"
               onClick={handleLogout}
             >
-              Sair
+              ⏻ Sair
             </Button>
           </div>
         </aside>
@@ -477,17 +491,38 @@ export default function DashboardPage() {
                     Organize suas contas por fase e acompanhe a evolucao.
                   </CardDescription>
                 </div>
-                <Button
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => {
-                    setMesaOption("LUCID 50K");
-                    setMesaCustom("");
-                    setAccountLogin("");
-                    setShowAccountModal(true);
-                  }}
-                >
-                  Adicionar nova conta
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Select value={mesaFilter} onValueChange={setMesaFilter}>
+                    <SelectTrigger className="h-9 w-[180px] text-xs">
+                      <SelectValue placeholder="Mesa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as mesas</SelectItem>
+                      {mesasDisponiveis.map((mesa) => (
+                        <SelectItem key={mesa} value={mesa}>
+                          {mesa}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    value={idFilter}
+                    onChange={(event) => setIdFilter(event.target.value)}
+                    placeholder="Pesquisar por ID"
+                    className="h-9 w-[180px] text-xs"
+                  />
+                  <Button
+                    className="h-9 bg-emerald-600 text-xs hover:bg-emerald-700"
+                    onClick={() => {
+                      setMesaOption("LUCID 50K");
+                      setMesaCustom("");
+                      setAccountLogin("");
+                      setShowAccountModal(true);
+                    }}
+                  >
+                    ➕ Adicionar nova conta
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4 lg:grid-cols-3">
@@ -516,7 +551,7 @@ export default function DashboardPage() {
                       ],
                     },
                   ].map((column) => {
-                    const items = accounts.filter(
+                    const items = filteredAccounts.filter(
                       (account) => account.stage === column.key
                     );
                     return (
@@ -612,7 +647,7 @@ export default function DashboardPage() {
                                                       })
                                                     }
                                                   >
-                                                    Avançar
+                                                    ➜ Avançar
                                                   </Button>
                                                 </div>
                                               ) : null}
@@ -651,7 +686,7 @@ export default function DashboardPage() {
                       </Badge>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {accounts
+                      {filteredAccounts
                         .filter((a) => a.stage === "awaiting_payment")
                         .map((account) => (
                           <Card key={account.id} className="border-muted/60">
@@ -688,12 +723,12 @@ export default function DashboardPage() {
                                   })
                                 }
                               >
-                                Avançar
+                                ➜ Avançar
                               </Button>
                             </CardContent>
                           </Card>
                         ))}
-                      {accounts.filter((a) => a.stage === "awaiting_payment").length === 0 ? (
+                      {filteredAccounts.filter((a) => a.stage === "awaiting_payment").length === 0 ? (
                         <p className="text-xs text-muted-foreground">
                           Nenhuma conta nesta fase.
                         </p>
@@ -707,12 +742,12 @@ export default function DashboardPage() {
                         PÓS 1º SAQUE
                       </CardTitle>
                       <Badge variant="secondary">
-                        {accounts.filter((a) => a.stage === "post_withdraw").length}
+                        {filteredAccounts.filter((a) => a.stage === "post_withdraw").length}
                       </Badge>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {[1, 2, 3, 4, 5].map((day) => {
-                        const dayItems = accounts.filter(
+                        const dayItems = filteredAccounts.filter(
                           (a) => a.stage === "post_withdraw" && a.day === day
                         );
                         const dayTrades =
@@ -779,7 +814,7 @@ export default function DashboardPage() {
                                               })
                                             }
                                           >
-                                            Avançar
+                                            ➜ Avançar
                                           </Button>
                                         ) : null}
                                       </CardContent>
@@ -1020,9 +1055,11 @@ export default function DashboardPage() {
                 variant="secondary"
                 onClick={() => setShowAccountModal(false)}
               >
-                Cancelar
+                ✖ Cancelar
               </Button>
-              <Button type="submit">Salvar</Button>
+              <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">
+                ✔ Salvar
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -1049,7 +1086,7 @@ export default function DashboardPage() {
             </div>
           ) : null}
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>✖ Cancelar</AlertDialogCancel>
             <AlertDialogAction
               disabled={
                 confirmState?.requiredWord &&
@@ -1062,7 +1099,7 @@ export default function DashboardPage() {
                 if (action) await action();
               }}
             >
-              Confirmar
+              ✔ Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1076,12 +1113,12 @@ export default function DashboardPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeAdvance}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel onClick={closeAdvance}>✖ Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={advanceAccountDay}
               className="bg-emerald-600 text-white hover:bg-emerald-700"
             >
-              Confirmar
+              ✔ Confirmar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1095,9 +1132,9 @@ export default function DashboardPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={closeDelete}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel onClick={closeDelete}>✖ Cancelar</AlertDialogCancel>
             <AlertDialogAction className="bg-rose-600 text-white hover:bg-rose-700" onClick={deleteAccount}>
-              Excluir
+              🗑 Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
