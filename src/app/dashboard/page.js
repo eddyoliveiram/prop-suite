@@ -181,30 +181,17 @@ export default function DashboardPage() {
 
   const tradeTemplateByStageDay = {
     approval: {
-      1: [
-        { amount: 2000, profit: 500 },
-        { amount: 2500, profit: 500 },
-        { amount: 3000, profit: 500 },
-      ],
-      2: [
-        { amount: 2000, profit: 500 },
-        { amount: 2500, profit: 500 },
-        { amount: 3000, profit: 500 },
-      ],
+      1: [{ amount: 2000, profit: 1500 }],
+      2: [{ amount: 2000, profit: 1500 }],
     },
     cushion: {
-      3: [
-        { amount: 2000, profit: 500 },
-        { amount: 2500, profit: 500 },
-        { amount: 3000, profit: 500 },
-        { amount: 3500, profit: 500 },
-      ],
+      3: [{ amount: 2000, profit: 2000 }],
     },
     withdraw: {
       4: [{ amount: 2000, profit: 250 }],
-      5: [{ amount: 2250, profit: 250 }],
-      6: [{ amount: 2500, profit: 250 }],
-      7: [{ amount: 2750, profit: 250 }],
+      5: [{ amount: 2000, profit: 250 }],
+      6: [{ amount: 2000, profit: 250 }],
+      7: [{ amount: 2000, profit: 250 }],
     },
     post_withdraw: {
       1: [{ amount: 1400, profit: 300 }],
